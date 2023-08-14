@@ -1,0 +1,14 @@
+﻿namespace MusicianDatabase.Data.Entities
+{
+    public class Venue
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Genre { get; set; }
+        public string? Description { get; set; }
+        public string Address { get; set; }
+        
+        public ICollection<Concert> Concerts { get; set; }
+
+    }
+}
