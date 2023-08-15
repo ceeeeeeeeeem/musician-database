@@ -13,5 +13,6 @@ namespace MusicianDatabase.Service.Interfaces
         Task<List<BandAvailable>> GetAvailable(string genre, DateTime date);
         Task<List<ArtistRole>> GetMembers(int bandId);
         Task<bool> AddMember(int artistId, int bandId, int instrumentId, string? roleDescription = null);
+        Task<bool> RemoveMember(int artistId, int bankId);
     }
 }

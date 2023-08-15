@@ -26,6 +26,9 @@ namespace MusicianDatabase.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(ConcertCreateDto concertDto) => Ok(await _concertService.CreateConcert(concertDto));
 
+        [HttpPost("QuickCreate")]
+        public async Task<IActionResult> QuickCreate(ConcertQuickCreateDto concertQCDto) => Ok(await _concertService.QuickCreateConcert(concertQCDto));
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, ConcertUpdateDto concertUpdateDto) => Ok(await _concertService.UpdateConcert(id, concertUpdateDto));
 

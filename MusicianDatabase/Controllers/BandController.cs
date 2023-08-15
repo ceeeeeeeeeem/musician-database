@@ -31,7 +31,8 @@ namespace MusicianDatabase.Controllers
 
         [HttpPost("AddMember")]
         public async Task<IActionResult> AddMember(int artistId, int bandId, int instrumentId, string? roleDescription = null) => Ok(await _bandService.AddMember(artistId, bandId, instrumentId, roleDescription));
-
+        [HttpDelete("RemoveMember")]
+        public async Task<IActionResult> RemoveMember(int artistId, int bandId) => Ok(await _bandService.RemoveMember(artistId,bandId));
 
         [HttpPost]
         public async Task<IActionResult> Create(BandCreateDto bandDto) => Ok(await _bandService.CreateBand(bandDto));

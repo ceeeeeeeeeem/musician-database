@@ -14,7 +14,6 @@ namespace MusicianDatabase.Service
         {
             _context = context;
         }
-
         public async Task<bool> CreateRoleInstrument(RoleInstrumentCreateDto roleInstrumentDto)
         {
             var roleInstrument = new RoleInstruments

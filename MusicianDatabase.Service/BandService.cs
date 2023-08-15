@@ -131,6 +131,30 @@ namespace MusicianDatabase.Service
             return bandMembers;
         }
 
+        public async Task<bool> RemoveMember(int artistId, int bandId)
+        {
+            var rolesToRemove = await _context.Roles
+                .Include(r => r.RoleInstruments)
+                .Where(r => r.ArtistId == artistId && r.BandId == bandId)
+                .ToListAsync();
+
+            if (!rolesToRemove.Any())
+                return false; // Member not found in the specified band
+
+            foreach (var role in rolesToRemove)
+            {
+                foreach (var roleInstrument in role.RoleInstruments.ToList())
+                {
+                    _context.RoleInstruments.Remove(roleInstrument);
+                }
+
+                _context.Roles.Remove(role);
+            }
+
+            int result = await _context.SaveChangesAsync();
+
+            return result > 0;
+        }
 
 
 

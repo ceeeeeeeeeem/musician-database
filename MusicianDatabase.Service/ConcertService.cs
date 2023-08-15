@@ -59,6 +59,33 @@ namespace MusicianDatabase.Service
             return concerts;
         }
 
+        public async Task<bool> QuickCreateConcert(ConcertQuickCreateDto concertQCDto)
+        {
+            var concert = new Concert
+            {
+                Name = concertQCDto.Name,
+                Date = concertQCDto.Date,
+                VenueId = concertQCDto.VenueId,
+                Description = concertQCDto.Description
+            };
+
+            _context.Concerts.Add(concert);
+            int result1 = await _context.SaveChangesAsync();
+
+            var concertBand = new ConcertBand
+            {
+                ConcertId = concert.Id,
+                BandId = concertQCDto.BandId,
+            };
+
+            _context.ConcertBands.Add(concertBand);
+            int result2= await _context.SaveChangesAsync();
+
+            bool results = result1 > 0 && result2 > 0;
+
+            return results;
+        }
+
         public async Task<bool> UpdateConcert(int id, ConcertUpdateDto concertUpdateDto)
         {
             var concert = await _context.Concerts.SingleOrDefaultAsync(a => a.Id == id);
