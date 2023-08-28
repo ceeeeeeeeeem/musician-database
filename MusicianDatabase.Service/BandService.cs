@@ -143,13 +143,15 @@ namespace MusicianDatabase.Service
 
             foreach (var role in rolesToRemove)
             {
-                foreach (var roleInstrument in role.RoleInstruments.ToList())
-                {
-                    _context.RoleInstruments.Remove(roleInstrument);
-                }
+                //foreach (var roleInstrument in role.RoleInstruments.ToList())
+                //{
+                //    //_context.RoleInstruments.Remove(roleInstrument);
+                //}
 
-                _context.Roles.Remove(role);
+                //_context.Roles.Remove(role);
+                _context.RoleInstruments.RemoveRange(role.RoleInstruments);
             }
+            _context.Roles.RemoveRange(rolesToRemove);
 
             int result = await _context.SaveChangesAsync();
 
