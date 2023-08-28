@@ -19,15 +19,18 @@ namespace MusicianDatabase.Controllers
         // Doesn't return roles.
         [HttpGet]
         public async Task<IActionResult> Get() => Ok(await _roleService.GetList());
+        
+        [HttpGet("Details")]
+        public async Task<IActionResult> GetDetailedList() => Ok(await _roleService.GetDetailedList());
 
         [HttpGet("{roleId}")]
         public async Task<IActionResult> Get(int roleId) => Ok(await _roleService.GetById(roleId));
 
         [HttpPost]
-        public async Task<IActionResult> Create(RoleCreateDto roleDto) => Ok(await _roleService.CreateRole(roleDto));
+        public async Task<IActionResult> Create(RoleCUDto roleDto) => Ok(await _roleService.CreateRole(roleDto));
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, RoleUpdateDto roleUpdateDto) => Ok(await _roleService.UpdateRole(id, roleUpdateDto));
+        public async Task<IActionResult> Update(int id, RoleCUDto roleUpdateDto) => Ok(await _roleService.UpdateRole(id, roleUpdateDto));
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id) => Ok(await _roleService.DeleteRole(id));

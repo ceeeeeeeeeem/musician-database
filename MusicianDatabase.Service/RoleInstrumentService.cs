@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MusicianDatabase.Data;
 using MusicianDatabase.Data.Entities;
 using MusicianDatabase.Service.DTOs;
@@ -9,18 +10,16 @@ namespace MusicianDatabase.Service
     public class RoleInstrumentService : IRoleInstrumentService
     {
         private readonly MusicianDbContext _context;
+        private readonly IMapper _mapper;
 
-        public RoleInstrumentService(MusicianDbContext context)
+        public RoleInstrumentService(MusicianDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
-        public async Task<bool> CreateRoleInstrument(RoleInstrumentCreateDto roleInstrumentDto)
+        public async Task<bool> CreateRoleInstrument(RoleInstrumentCUDto roleInstrumentDto)
         {
-            var roleInstrument = new RoleInstruments
-            {
-                RoleId = roleInstrumentDto.RoleId,
-                InstrumentId = roleInstrumentDto.InstrumentId
-            };
+            var roleInstrument = _mapper.Map<RoleInstruments>(roleInstrumentDto);
 
             _context.RoleInstruments.Add(roleInstrument);
             int result = await _context.SaveChangesAsync();
@@ -56,20 +55,16 @@ namespace MusicianDatabase.Service
             return roleInstruments;
         }
 
-        public async Task<bool> UpdateRoleInstrument(int concertId, int bandId, RoleInstrumentUpdateDto roleInstrumentUpdateDto)
+        public async Task<bool> UpdateRoleInstrument(int concertId, int bandId, RoleInstrumentCUDto roleInstrumentCUDto)
         {
             var roleInstrument = await _context.RoleInstruments.SingleOrDefaultAsync(ri => ri.RoleId == concertId && ri.InstrumentId == bandId);
 
             if (roleInstrument == null)
                 return false;
 
-            // Update properties from the DTO
-            roleInstrument.RoleId = roleInstrumentUpdateDto.RoleId;
-            roleInstrument.InstrumentId = roleInstrumentUpdateDto.InstrumentId;
-
+            _mapper.Map(roleInstrumentCUDto, roleInstrument);
             _context.Entry(roleInstrument).State = EntityState.Modified;
 
-            // A try-catch block necessary?
             int result = await _context.SaveChangesAsync();
 
             return result > 0;

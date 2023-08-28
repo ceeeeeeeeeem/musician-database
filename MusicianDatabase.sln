@@ -5,9 +5,9 @@ VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MusicianDatabase", "MusicianDatabase\MusicianDatabase.csproj", "{81B47807-CA03-4022-A128-A2A6BD665169}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicianDatabase.Data", "MusicianDatabase.Data\MusicianDatabase.Data.csproj", "{9EDD25E9-4BFA-44AF-98C7-990DE18B76C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MusicianDatabase.Data", "MusicianDatabase.Data\MusicianDatabase.Data.csproj", "{9EDD25E9-4BFA-44AF-98C7-990DE18B76C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicianDatabase.Service", "MusicianDatabase.Service\MusicianDatabase.Service.csproj", "{F255E80E-F032-4FAD-A1B7-98E13390771D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MusicianDatabase.Service", "MusicianDatabase.Service\MusicianDatabase.Service.csproj", "{F255E80E-F032-4FAD-A1B7-98E13390771D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

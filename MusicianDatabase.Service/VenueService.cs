@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MusicianDatabase.Data;
 using MusicianDatabase.Data.Entities;
 using MusicianDatabase.Service.DTOs;
@@ -9,22 +10,24 @@ namespace MusicianDatabase.Service
     public class VenueService : IVenueService
     {
         private readonly MusicianDbContext _context;
+        private readonly IMapper _mapper;
 
-        public VenueService(MusicianDbContext context)
+        public VenueService(MusicianDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<bool> CreateVenue(VenueCreateDto venueDto)
+        public async Task<bool> CreateVenue(VenueCUDto venueDto)
         {
-            var venue = new Venue
-            {
-                Name = venueDto.Name,
-                Genre = venueDto.Genre,
-                Address = venueDto.Address,
-                Description = venueDto.Description
-            };
-
+            //var venue = new Venue
+            //{
+            //    Name = venueDto.Name,
+            //    Genre = venueDto.Genre,
+            //    Address = venueDto.Address,
+            //    Description = venueDto.Description
+            //};
+            var venue = _mapper.Map<Venue>(venueDto);
             _context.Venues.Add(venue);
             int result = await _context.SaveChangesAsync();
 
@@ -45,21 +48,14 @@ namespace MusicianDatabase.Service
             return result > 0;
         }
 
-        public async Task<List<VenueAvailable>> GetAvailable(DateTime date)
+        public async Task<List<VenueAvailableDto>> GetAvailable(DateTime date)
         {
             var venues = await _context.Venues
                 .Where(v => !v.Concerts.Any(c => c.Date == date)) // Check for concerts on the specified date
-                .Select(venue => new VenueAvailable
-                {
-                    Id = venue.Id,
-                    Name = venue.Name,
-                    Genre = venue.Genre,
-                    Address = venue.Address,
-                    Description = venue.Description
-                })
                 .ToListAsync();
+            var availableVenues = _mapper.Map<List<VenueAvailableDto>>(venues);
 
-            return venues;
+            return availableVenues;
         }
 
 
@@ -77,18 +73,20 @@ namespace MusicianDatabase.Service
             return venues;
         }
 
-        public async Task<bool> UpdateVenue(int id, VenueUpdateDto venueUpdateDto)
+        public async Task<bool> UpdateVenue(int id, VenueCUDto venueUpdateDto)
         {
             var venue = await _context.Venues.SingleOrDefaultAsync(a => a.Id == id);
 
             if (venue == null)
                 return false;
 
-            // Update properties from the DTO
-            venue.Name = venueUpdateDto.Name;
-            venue.Genre = venueUpdateDto.Genre;
-            venue.Address = venueUpdateDto.Address;
-            venue.Description = venueUpdateDto.Description;
+            //// Update properties from the DTO
+            //venue.Name = venueUpdateDto.Name;
+            //venue.Genre = venueUpdateDto.Genre;
+            //venue.Address = venueUpdateDto.Address;
+            //venue.Description = venueUpdateDto.Description;
+
+            _mapper.Map(venueUpdateDto, venue);
 
             _context.Entry(venue).State = EntityState.Modified;
 

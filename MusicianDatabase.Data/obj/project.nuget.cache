@@ -1,11 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "yvpvClwEHmEvCX0gUNdrz0rGaz62Dy71n+K36m73gBCloucX36GMm2Wby2cvhcrGQune9G38cfqIYHJ71WHbhQ==",
+  "dgSpecHash": "doJjDH+FJfq2SBiz6hcbgwMXikxtW5FLbvYKSKcXX4BIyjP4n3P+1xiXwEc8kdvA2c4bR7Ywl3QBcRUhAae+TQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\demcemir\\source\\repos\\MusicianDatabase-v1\\MusicianDatabase.Data\\MusicianDatabase.Data.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\demcemir\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
+    "C:\\Users\\demcemir\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
     "C:\\Users\\demcemir\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
-    "C:\\Users\\demcemir\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
+    "C:\\Users\\demcemir\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\demcemir\\.nuget\\packages\\microsoft.data.sqlclient\\2.1.4\\microsoft.data.sqlclient.2.1.4.nupkg.sha512",
     "C:\\Users\\demcemir\\.nuget\\packages\\microsoft.data.sqlclient.sni.runtime\\2.1.1\\microsoft.data.sqlclient.sni.runtime.2.1.1.nupkg.sha512",
     "C:\\Users\\demcemir\\.nuget\\packages\\microsoft.entityframeworkcore\\6.0.20\\microsoft.entityframeworkcore.6.0.20.nupkg.sha512",

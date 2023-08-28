@@ -27,10 +27,10 @@ namespace MusicianDatabase.Controllers
         public async Task<IActionResult> GetInstrumentalists(int instrumentId) => Ok(await _instrumentService.GetInstrumentalists(instrumentId));
 
         [HttpPost]
-        public async Task<IActionResult> Create(InstrumentCreateDto instrumentDto) => Ok(await _instrumentService.CreateInstrument(instrumentDto));
+        public async Task<IActionResult> Create(InstrumentCUDto instrumentDto) => Ok(await _instrumentService.CreateInstrument(instrumentDto));
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, InstrumentUpdateDto instrumentUpdateDto) => Ok(await _instrumentService.UpdateInstrument(id, instrumentUpdateDto));
+        public async Task<IActionResult> Update(int id, InstrumentCUDto instrumentUpdateDto) => Ok(await _instrumentService.UpdateInstrument(id, instrumentUpdateDto));
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id) => Ok(await _instrumentService.DeleteInstrument(id));

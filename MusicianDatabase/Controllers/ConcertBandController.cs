@@ -24,10 +24,10 @@ namespace MusicianDatabase.Controllers
         public async Task<IActionResult> Get(int concertId, int bandId) => Ok(await _concertBandService.GetById(concertId, bandId));
 
         [HttpPost]
-        public async Task<IActionResult> Create(ConcertBandCreateDto concertBandDto) => Ok(await _concertBandService.CreateConcertBand(concertBandDto));
+        public async Task<IActionResult> Create(ConcertBandCUDto concertBandDto) => Ok(await _concertBandService.CreateConcertBand(concertBandDto));
 
         [HttpPut("{concertId}/{bandId}")]
-        public async Task<IActionResult> Update(int concertId, int bandId, ConcertBandUpdateDto concertBandUpdateDto) => Ok(await _concertBandService.UpdateConcertBand(concertId, bandId, concertBandUpdateDto));
+        public async Task<IActionResult> Update(int concertId, int bandId, ConcertBandCUDto concertBandCUDto) => Ok(await _concertBandService.UpdateConcertBand(concertId, bandId, concertBandCUDto));
 
         [HttpDelete("{concertId}/{bandId}")]
         public async Task<IActionResult> Delete(int concertId, int bandId) => Ok(await _concertBandService.DeleteConcertBand(concertId, bandId));

@@ -5,11 +5,11 @@ namespace MusicianDatabase.Service.Interfaces
 {
     public interface IVenueService
     {
-        Task<bool> CreateVenue(VenueCreateDto venueDto);
-        Task<bool> UpdateVenue(int id, VenueUpdateDto venueUpdateDto);
+        Task<bool> CreateVenue(VenueCUDto venueDto);
+        Task<bool> UpdateVenue(int id, VenueCUDto venueUpdateDto);
         Task<bool> DeleteVenue(int id);
         Task<List<Venue>> GetList();
         Task<Venue> GetById(int id);
-        Task<List<VenueAvailable>> GetAvailable(DateTime date);
+        Task<List<VenueAvailableDto>> GetAvailable(DateTime date);
     }
 }

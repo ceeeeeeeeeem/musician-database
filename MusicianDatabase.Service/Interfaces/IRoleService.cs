@@ -5,10 +5,11 @@ namespace MusicianDatabase.Service.Interfaces
 {
     public interface IRoleService
     {
-        Task<bool> CreateRole(RoleCreateDto roleDto);
-        Task<bool> UpdateRole(int id, RoleUpdateDto roleUpdateDto);
+        Task<bool> CreateRole(RoleCUDto roleDto);
+        Task<bool> UpdateRole(int id, RoleCUDto roleUpdateDto);
         Task<bool> DeleteRole(int id);
         Task<List<Role>> GetList();
+        Task<List<RoleDto>> GetDetailedList();
         Task<Role> GetById(int id);
     }
 }

@@ -28,10 +28,10 @@ namespace MusicianDatabase.Controllers
         public async Task<IActionResult> GetAvailable(DateTime date) => Ok(await _venueService.GetAvailable(date));
 
         [HttpPost]
-        public async Task<IActionResult> Create(VenueCreateDto venueDto) => Ok(await _venueService.CreateVenue(venueDto));
+        public async Task<IActionResult> Create(VenueCUDto venueDto) => Ok(await _venueService.CreateVenue(venueDto));
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, VenueUpdateDto venueUpdateDto) => Ok(await _venueService.UpdateVenue(id, venueUpdateDto));
+        public async Task<IActionResult> Update(int id, VenueCUDto venueUpdateDto) => Ok(await _venueService.UpdateVenue(id, venueUpdateDto));
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id) => Ok(await _venueService.DeleteVenue(id));

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MusicianDatabase.Data;
 using MusicianDatabase.Data.Entities;
 using MusicianDatabase.Service.DTOs;
@@ -9,20 +10,17 @@ namespace MusicianDatabase.Service
     public class ConcertBandService : IConcertBandService
     {
         private readonly MusicianDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ConcertBandService(MusicianDbContext context)
+        public ConcertBandService(MusicianDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<bool> CreateConcertBand(ConcertBandCreateDto concertBandDto)
+        public async Task<bool> CreateConcertBand(ConcertBandCUDto concertBandDto)
         {
-            var concertBand = new ConcertBand
-            {
-                ConcertId = concertBandDto.ConcertId,
-                BandId = concertBandDto.BandId
-            };
-
+            var concertBand = _mapper.Map<ConcertBand>(concertBandDto);
             _context.ConcertBands.Add(concertBand);
             int result = await _context.SaveChangesAsync();
 
@@ -57,20 +55,16 @@ namespace MusicianDatabase.Service
             return concertBands;
         }
 
-        public async Task<bool> UpdateConcertBand(int concertId, int bandId, ConcertBandUpdateDto concertBandUpdateDto)
+        public async Task<bool> UpdateConcertBand(int concertId, int bandId, ConcertBandCUDto concertBandCUDto)
         {
             var concertBand = await _context.ConcertBands.SingleOrDefaultAsync(cb => cb.ConcertId == concertId && cb.BandId == bandId);
 
             if (concertBand == null)
                 return false;
 
-            // Update properties from the DTO
-            concertBand.ConcertId = concertBandUpdateDto.ConcertId;
-            concertBand.BandId = concertBandUpdateDto.BandId;
-
+            _mapper.Map(concertBandCUDto, concertBand);
             _context.Entry(concertBand).State = EntityState.Modified;
 
-            // A try-catch block necessary?
             int result = await _context.SaveChangesAsync();
 
             return result > 0;

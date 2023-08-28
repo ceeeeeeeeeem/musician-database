@@ -10,4 +10,11 @@
     <ProjectReference Include="..\MusicianDatabase.Data\MusicianDatabase.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="Snickler.EFCore" Version="3.0.0" />
+  </ItemGroup>
+
 </Project>

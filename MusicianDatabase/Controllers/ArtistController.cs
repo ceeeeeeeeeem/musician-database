@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using MusicianDatabase.Service;
 using MusicianDatabase.Service.DTOs;
 using MusicianDatabase.Service.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace MusicianDatabase.Controllers
 {
@@ -13,7 +15,6 @@ namespace MusicianDatabase.Controllers
 
         public ArtistController(IArtistService artistService)
         {
-            // Should I set up the configuration so it doesn't generate as "this.context"?
             _artistService = artistService;
         }
 
@@ -27,12 +28,14 @@ namespace MusicianDatabase.Controllers
         [HttpGet("GetRolesById")]
         public async Task<IActionResult> GetRolesById(int id) => Ok(await _artistService.GetRolesById(id));
 
+        [HttpGet("GetArtistsWithoutBands")]
+        public async Task<IActionResult> GetArtistsWithoutBands() => Ok(await _artistService.GetArtistsWithoutBands());
 
         [HttpPost]
-        public async Task<IActionResult> Create(ArtistCreateDto artistDto) => Ok(await _artistService.CreateArtist(artistDto));
+        public async Task<IActionResult> Create(ArtistCUDto artistDto) => Ok(await _artistService.CreateArtist(artistDto));
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, ArtistUpdateDto artistUpdateDto) => Ok(await _artistService.UpdateArtist(id, artistUpdateDto));
+        public async Task<IActionResult> Update(int id, ArtistCUDto artistUpdateDto) => Ok(await _artistService.UpdateArtist(id, artistUpdateDto));
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id) => Ok(await _artistService.DeleteArtist(id));

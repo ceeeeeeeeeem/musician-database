@@ -5,11 +5,11 @@ namespace MusicianDatabase.Service.Interfaces
 {
     public interface IInstrumentService
     {
-        Task<bool> CreateInstrument(InstrumentCreateDto instrumentDto);
-        Task<bool> UpdateInstrument(int id, InstrumentUpdateDto instrumentUpdateDto);
+        Task<bool> CreateInstrument(InstrumentCUDto instrumentDto);
+        Task<bool> UpdateInstrument(int id, InstrumentCUDto instrumentUpdateDto);
         Task<bool> DeleteInstrument(int id);
         Task<List<Instrument>> GetList();
         Task<Instrument> GetById(int id);
-        Task<List<ArtistRole>> GetInstrumentalists(int instrumentId);
+        Task<List<ArtistRoleDto>> GetInstrumentalists(int instrumentId);
     }
 }

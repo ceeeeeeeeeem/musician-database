@@ -24,10 +24,10 @@ namespace MusicianDatabase.Controllers
         public async Task<IActionResult> Get(int roleId, int instrumentId) => Ok(await _roleInstrumentService.GetById(roleId, instrumentId));
 
         [HttpPost]
-        public async Task<IActionResult> Create(RoleInstrumentCreateDto roleInstrumentDto) => Ok(await _roleInstrumentService.CreateRoleInstrument(roleInstrumentDto));
+        public async Task<IActionResult> Create(RoleInstrumentCUDto roleInstrumentDto) => Ok(await _roleInstrumentService.CreateRoleInstrument(roleInstrumentDto));
 
         [HttpPut("{roleId}/{instrumentId}")]
-        public async Task<IActionResult> Update(int roleId, int instrumentId, RoleInstrumentUpdateDto roleInstrumentUpdateDto) => Ok(await _roleInstrumentService.UpdateRoleInstrument(roleId, instrumentId, roleInstrumentUpdateDto));
+        public async Task<IActionResult> Update(int roleId, int instrumentId, RoleInstrumentCUDto roleInstrumentCUDto) => Ok(await _roleInstrumentService.UpdateRoleInstrument(roleId, instrumentId, roleInstrumentCUDto));
 
         [HttpDelete("{roleId}/{instrumentId}")]
         public async Task<IActionResult> Delete(int roleId, int instrumentId) => Ok(await _roleInstrumentService.DeleteRoleInstrument(roleId, instrumentId));

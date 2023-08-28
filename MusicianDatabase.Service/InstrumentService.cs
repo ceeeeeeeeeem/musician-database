@@ -16,7 +16,7 @@ namespace MusicianDatabase.Service
             _context = context;
         }
 
-        public async Task<bool> CreateInstrument(InstrumentCreateDto instrumentDto)
+        public async Task<bool> CreateInstrument(InstrumentCUDto instrumentDto)
         {
             var instrument = new Instrument
             {
@@ -51,12 +51,12 @@ namespace MusicianDatabase.Service
         }
 
         // Couldn't implement to controller, Swagger gives API error? -- Fixed!
-        public async Task<List<ArtistRole>> GetInstrumentalists(int instrumentId)
+        public async Task<List<ArtistRoleDto>> GetInstrumentalists(int instrumentId)
         {
             var instrumentalists = await _context.RoleInstruments
                 .Where(ri => ri.InstrumentId == instrumentId)
                 .Include(ri => ri.Role.Artist)
-                .Select(ri => new ArtistRole
+                .Select(ri => new ArtistRoleDto
                 {
                     ArtistId = ri.Role.Artist.Id,
                     FirstName = ri.Role.Artist.FirstName,
@@ -80,7 +80,7 @@ namespace MusicianDatabase.Service
             return instruments;
         }
 
-        public async Task<bool> UpdateInstrument(int id, InstrumentUpdateDto instrumentUpdateDto)
+        public async Task<bool> UpdateInstrument(int id, InstrumentCUDto instrumentUpdateDto)
         {
             var instrument = await _context.Instruments.SingleOrDefaultAsync(a => a.Id == id);
 

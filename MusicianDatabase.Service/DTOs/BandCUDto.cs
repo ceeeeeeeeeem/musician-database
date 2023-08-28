@@ -1,10 +1,11 @@
-﻿namespace MusicianDatabase.Service.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MusicianDatabase.Service.DTOs
 {
-    public class VenueUpdateDto
+    public class BandCUDto
     {
         public string Name { get; set; }
         public string Genre { get; set; }
-        public string Address { get; set; }
         public string Description { get; set; }
     }
 }

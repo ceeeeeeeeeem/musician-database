@@ -13,6 +13,7 @@ namespace MusicianDatabase.Data
         {
             _configuration = configuration;
         }
+        // public DbQuery<ConcertCountDto> ConcertCountDtos { get; set; }
 
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Instrument> Instruments { get; set; }

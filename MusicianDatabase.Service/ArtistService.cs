@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MusicianDatabase.Data;
 using MusicianDatabase.Data.Entities;
 using MusicianDatabase.Service.DTOs;
@@ -9,21 +10,24 @@ namespace MusicianDatabase.Service
     public class ArtistService : IArtistService
     {
         private readonly MusicianDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ArtistService(MusicianDbContext context)
+        public ArtistService(MusicianDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<bool> CreateArtist(ArtistCreateDto artistDto)
+        public async Task<bool> CreateArtist(ArtistCUDto artistDto)
         {
-            var artist = new Artist
-            {
-                FirstName = artistDto.FirstName,
-                LastName = artistDto.LastName,
-                Genre = artistDto.Genre,
-                Description = artistDto.Description
-            };
+            //var artist = new Artist
+            //{
+            //    FirstName = artistDto.FirstName,
+            //    LastName = artistDto.LastName,
+            //    Genre = artistDto.Genre,
+            //    Description = artistDto.Description
+            //};
+            var artist = _mapper.Map<Artist>(artistDto);
 
             _context.Artists.Add(artist);
             int result = await _context.SaveChangesAsync();
@@ -45,6 +49,12 @@ namespace MusicianDatabase.Service
             return result > 0;
         }
 
+        public async Task<List<Artist>> GetArtistsWithoutBands()
+        {
+            var result = await _context.Artists.FromSqlRaw("GetArtistsWithoutBands").ToListAsync();
+            return result;
+        }
+
         public async Task<Artist> GetById(int id)
         {
             var artist = await _context.Artists.SingleOrDefaultAsync(a => a.Id == id);
@@ -59,11 +69,11 @@ namespace MusicianDatabase.Service
             return artists;
         }
 
-        public async Task<List<ArtistRole>> GetRolesById(int id)
+        public async Task<List<ArtistRoleDto>> GetRolesById(int id)
         {
             var artistRoles = await _context.Artists
                 .Where(a => a.Id == id)
-                .SelectMany(a => a.Roles.Select(r => new ArtistRole
+                .SelectMany(a => a.Roles.Select(r => new ArtistRoleDto
                 {
                     ArtistId = a.Id,
                     FirstName = a.FirstName,
@@ -77,7 +87,7 @@ namespace MusicianDatabase.Service
 
             var groupedArtistRoles = artistRoles
                 .GroupBy(ar => new { ar.ArtistId, ar.BandId })
-                .Select(group => new ArtistRole
+                .Select(group => new ArtistRoleDto
                 {
                     ArtistId = group.Key.ArtistId,
                     FirstName = group.First().FirstName,
@@ -94,27 +104,28 @@ namespace MusicianDatabase.Service
 
 
 
-        public Task<List<ArtistRole>> GetRolesOfArtistByInstrument(int id, int instrumentId)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<List<ArtistRoleDto>> GetRolesOfArtistByInstrument(int id, int instrumentId)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public async Task<bool> UpdateArtist(int id, ArtistUpdateDto artistUpdateDto)
+        public async Task<bool> UpdateArtist(int id, ArtistCUDto artistUpdateDto)
         {
             var artist = await _context.Artists.SingleOrDefaultAsync(a => a.Id == id);
 
             if (artist == null)
                 return false;
 
-            // Update properties from the DTO
-            artist.FirstName = artistUpdateDto.FirstName;
-            artist.LastName = artistUpdateDto.LastName;
-            artist.Genre = artistUpdateDto.Genre;
-            artist.Description = artistUpdateDto.Description;
+            //// Update properties from the DTO
+            //artist.FirstName = artistUpdateDto.FirstName;
+            //artist.LastName = artistUpdateDto.LastName;
+            //artist.Genre = artistUpdateDto.Genre;
+            //artist.Description = artistUpdateDto.Description;
+
+            _mapper.Map(artistUpdateDto, artist);
 
             _context.Entry(artist).State = EntityState.Modified;
 
-            // A try-catch block necessary?
             int result = await _context.SaveChangesAsync();
 
             return result > 0;

@@ -2,7 +2,7 @@
 
 namespace MusicianDatabase.Service.DTOs
 {
-    public class VenueAvailable
+    public class VenueAvailableDto
     {
         public int Id { get; set; }
         public string Name { get; set; }

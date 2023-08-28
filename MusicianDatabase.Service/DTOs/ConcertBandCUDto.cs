@@ -2,11 +2,9 @@
 
 namespace MusicianDatabase.Service.DTOs
 {
-    public class ConcertBandCreateDto
+    public class ConcertBandCUDto
     {
-        [Required]
         public int ConcertId { get; set; }
-        [Required]
         public int BandId { get; set; }
     }
 }

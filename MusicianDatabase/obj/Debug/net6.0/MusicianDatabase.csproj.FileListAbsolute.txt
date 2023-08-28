@@ -206,3 +206,9 @@ C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\obj\Debug\ne
 C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\obj\Debug\net6.0\MusicianDatabase.pdb
 C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\obj\Debug\net6.0\MusicianDatabase.genruntimeconfig.cache
 C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\obj\Debug\net6.0\ref\MusicianDatabase.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\AutoMapper.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\FluentValidation.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\FluentValidation.AspNetCore.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\FluentValidation.DependencyInjectionExtensions.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\Snickler.EFCore.dll

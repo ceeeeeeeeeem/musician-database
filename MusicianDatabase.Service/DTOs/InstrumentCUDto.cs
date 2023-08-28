@@ -2,9 +2,8 @@
 
 namespace MusicianDatabase.Service.DTOs
 {
-    public class InstrumentCreateDto
+    public class InstrumentCUDto
     {
-        [Required]
         public string Name { get; set; }
     }
 }

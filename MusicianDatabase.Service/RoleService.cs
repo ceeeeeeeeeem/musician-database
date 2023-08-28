@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MusicianDatabase.Data;
 using MusicianDatabase.Data.Entities;
 using MusicianDatabase.Service.DTOs;
@@ -9,13 +10,15 @@ namespace MusicianDatabase.Service
     public class RoleService : IRoleService
     {
         private readonly MusicianDbContext _context;
+        private readonly IMapper _mapper;
 
-        public RoleService(MusicianDbContext context)
+        public RoleService(MusicianDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<bool> CreateRole(RoleCreateDto roleDto)
+        public async Task<bool> CreateRole(RoleCUDto roleDto)
         {
             var role = new Role
             {
@@ -58,7 +61,16 @@ namespace MusicianDatabase.Service
             return roles;
         }
 
-        public async Task<bool> UpdateRole(int id, RoleUpdateDto roleUpdateDto)
+        public async Task<List<RoleDto>> GetDetailedList()
+        {
+            var roles = await _context.Roles.Include(r => r.Artist).Include(r => r.Band)
+                .Include(r => r.RoleInstruments).ThenInclude(ri => ri.Instrument).ToListAsync();
+            var detailedRoles = _mapper.Map<List<RoleDto>>(roles);
+
+            return detailedRoles;
+        }
+
+        public async Task<bool> UpdateRole(int id, RoleCUDto roleUpdateDto)
         {
             var role = await _context.Roles.SingleOrDefaultAsync(a => a.Id == id);
 
