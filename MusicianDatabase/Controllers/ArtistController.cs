@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicianDatabase.Service;
 using MusicianDatabase.Service.DTOs;
@@ -32,6 +33,7 @@ namespace MusicianDatabase.Controllers
         public async Task<IActionResult> GetArtistsWithoutBands() => Ok(await _artistService.GetArtistsWithoutBands());
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create(ArtistCUDto artistDto) => Ok(await _artistService.CreateArtist(artistDto));
 
         [HttpPut("{id}")]

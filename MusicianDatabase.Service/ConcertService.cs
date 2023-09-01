@@ -2,10 +2,12 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Microsoft.Extensions.Logging;
 using MusicianDatabase.Data;
 using MusicianDatabase.Data.Entities;
 using MusicianDatabase.Service.DTOs;
+using MusicianDatabase.Service.Helpers;
 using MusicianDatabase.Service.Interfaces;
 using Snickler.EFCore;
 
@@ -19,7 +21,6 @@ namespace MusicianDatabase.Service
         // Has console logger, memory cache implemented. (console logger, memorycache defined at Program.cs)
         private readonly ILogger<ConcertService>  _logger;
         private readonly IMemoryCache _memoryCache;
-        private readonly List<string> _concertCountsCacheKeys = new List<string>();
 
         public ConcertService(MusicianDbContext context, IMapper mapper, ILogger<ConcertService> logger, IMemoryCache memoryCache)
         {
@@ -35,8 +36,8 @@ namespace MusicianDatabase.Service
             _context.Concerts.Add(concert);
             int result = await _context.SaveChangesAsync();
 
-            _memoryCache.Remove("ConcertCounts");
             _memoryCache.Remove("ConcertsCache");
+            CacheHelper.RemoveByPattern(_memoryCache, "ConcertCounts");
 
 
             return result > 0;
@@ -52,8 +53,8 @@ namespace MusicianDatabase.Service
             _context.Concerts.Remove(concert);
 
             int result = await _context.SaveChangesAsync();
-            _memoryCache.Remove("ConcertCounts");
             _memoryCache.Remove("ConcertsCache");
+            CacheHelper.RemoveByPattern(_memoryCache, "ConcertCounts");
 
             return result > 0;
         }
@@ -67,7 +68,15 @@ namespace MusicianDatabase.Service
 
         public async Task<List<ConcertCountDto>> GetConcertCountsBetweenDates(DateTime startDate, DateTime endDate)
         {
-            var cacheKey = $"ConcertCounts";
+            var cacheKey = $"ConcertCounts_{startDate}_{endDate}";
+
+            if (_memoryCache.TryGetValue(cacheKey, out List<ConcertCountDto> cachedData))
+            {
+                _logger.LogInformation("GetConcertCountsBetweenDates - Returning cached data for StartDate: {StartDate} and EndDate: {EndDate}", startDate, endDate);
+                return cachedData;
+            }
+            _logger.LogInformation("GetConcertCountsBetweenDates - Data not found in cache. Querying the database for StartDate: {StartDate} and EndDate: {EndDate}", startDate, endDate);
+
 
             var result = new List<ConcertCountDto>();
 
@@ -128,8 +137,9 @@ namespace MusicianDatabase.Service
             _context.Concerts.Add(concertNew);
 
             int result3 = await _context.SaveChangesAsync();
-            _memoryCache.Remove("ConcertCounts");
             _memoryCache.Remove("ConcertsCache");
+            CacheHelper.RemoveByPattern(_memoryCache, "ConcertCounts");
+
 
             return result3 > 0;
         }
@@ -145,8 +155,8 @@ namespace MusicianDatabase.Service
             _context.Entry(concert).State = EntityState.Modified;
 
             int result = await _context.SaveChangesAsync();
-            _memoryCache.Remove("ConcertCounts");
             _memoryCache.Remove("ConcertsCache");
+            CacheHelper.RemoveByPattern(_memoryCache, "ConcertCounts");
 
             return result > 0;
         }

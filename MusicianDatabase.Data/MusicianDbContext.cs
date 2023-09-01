@@ -23,6 +23,8 @@ namespace MusicianDatabase.Data
         public DbSet<Concert> Concerts { get; set; }
         public DbSet<ConcertBand> ConcertBands { get; set; }
         public DbSet<Venue> Venues { get; set; }
+        public DbSet<User> Users { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

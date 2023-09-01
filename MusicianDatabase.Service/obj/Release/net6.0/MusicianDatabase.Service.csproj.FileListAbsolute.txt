@@ -1,0 +1,15 @@
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\bin\Release\net6.0\MusicianDatabase.Service.deps.json
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\bin\Release\net6.0\MusicianDatabase.Service.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\bin\Release\net6.0\MusicianDatabase.Service.pdb
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\bin\Release\net6.0\MusicianDatabase.Data.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\bin\Release\net6.0\MusicianDatabase.Data.pdb
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\obj\Release\net6.0\MusicianDatabase.Service.csproj.AssemblyReference.cache
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\obj\Release\net6.0\MusicianDatabase.Service.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\obj\Release\net6.0\MusicianDatabase.Service.AssemblyInfoInputs.cache
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\obj\Release\net6.0\MusicianDatabase.Service.AssemblyInfo.cs
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\obj\Release\net6.0\MusicianDatabase.Service.csproj.CoreCompileInputs.cache
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\obj\Release\net6.0\MusicianDatabase.Service.csproj.CopyComplete
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\obj\Release\net6.0\MusicianDatabase.Service.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\obj\Release\net6.0\refint\MusicianDatabase.Service.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\obj\Release\net6.0\MusicianDatabase.Service.pdb
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase.Service\obj\Release\net6.0\ref\MusicianDatabase.Service.dll

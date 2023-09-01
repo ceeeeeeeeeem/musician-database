@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MusicianDatabase.Data;
 using MusicianDatabase.Data.Entities;
 using MusicianDatabase.Service.DTOs;
+using MusicianDatabase.Service.Extensions;
 using MusicianDatabase.Service.Interfaces;
 using Snickler.EFCore;
 
@@ -47,12 +48,7 @@ namespace MusicianDatabase.Service
 
         public async Task<bool> CreateBand(BandCUDto bandDto)
         {
-            //var band = new Band
-            //{
-            //    Name = bandDto.Name,
-            //    Genre = bandDto.Genre,
-            //    Description = bandDto.Description
-            //};
+            bandDto.Name = bandDto.Name.StylizeBandName();
             var band = _mapper.Map<Band>(bandDto);
             _context.Bands.Add(band);
             int result = await _context.SaveChangesAsync();
@@ -210,10 +206,7 @@ namespace MusicianDatabase.Service
             if (band == null)
                 return false;
 
-            //// Update properties from the DTO
-            //band.Name = bandUpdateDto.Name;
-            //band.Genre = bandUpdateDto.Genre;
-            //band.Description = bandUpdateDto.Description;
+            bandUpdateDto.Name = bandUpdateDto.Name.StylizeBandName();
 
             _mapper.Map(bandUpdateDto, band);
 

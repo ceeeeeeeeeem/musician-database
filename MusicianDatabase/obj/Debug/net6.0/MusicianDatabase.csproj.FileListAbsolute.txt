@@ -212,3 +212,5 @@ C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\ne
 C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\FluentValidation.AspNetCore.dll
 C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\FluentValidation.DependencyInjectionExtensions.dll
 C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\Snickler.EFCore.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\demcemir\source\repos\MusicianDatabase-v1\MusicianDatabase\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll
