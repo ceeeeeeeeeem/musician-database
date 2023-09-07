@@ -22,7 +22,7 @@ namespace MusicianDatabase.Middleware
             _logger.LogInformation($"Received request: {context.Request.Method} {context.Request.Path} at {DateTime.UtcNow}");
 
             // Add a custom header to the response.
-            context.Response.Headers.Add("X-Custom-Header", "Hello from MWTest!");
+            context.Response.Headers.Add("MW-Test-Header", "Hello from MWTest!");
 
             // Call the next middleware in the pipeline.
             await _next(context);

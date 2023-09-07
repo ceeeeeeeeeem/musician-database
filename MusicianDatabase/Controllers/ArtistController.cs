@@ -32,6 +32,10 @@ namespace MusicianDatabase.Controllers
         [HttpGet("GetArtistsWithoutBands")]
         public async Task<IActionResult> GetArtistsWithoutBands() => Ok(await _artistService.GetArtistsWithoutBands());
 
+
+        [HttpGet("GetRolesOfArtistByInstrument")]
+        public async Task<IActionResult> GetRolesOfArtistByInstrument(int id, int instrumentId) => Ok(await _artistService.GetRolesOfArtistByInstrument(id, instrumentId));
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Create(ArtistCUDto artistDto) => Ok(await _artistService.CreateArtist(artistDto));

@@ -20,7 +20,7 @@ namespace MusicianDatabase.Controllers
         public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
         {
             // Authenticate the user
-            var user = await _authService.AuthenticateUserAsync(loginDto.Email, loginDto.Password);
+            var user = await _authService.AuthenticateUser(loginDto.Email, loginDto.Password);
 
             if (user == null)
             {
@@ -32,5 +32,26 @@ namespace MusicianDatabase.Controllers
 
             return Ok(new { Token = token });
         }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] UserDto userDto)
+        {
+            if (await _authService.UserAlreadyExists(userDto.Email))
+            {
+                return BadRequest("Email is already being used.");
+            }
+
+            var user = await _authService.RegisterUser(userDto.Name, userDto.Surname, userDto.Email, userDto.Password);
+
+            if (user != null)
+            {
+                return Ok(user); // Return the newly registered user
+            }
+            else
+            {
+                return BadRequest("User registration failed."); // Handle registration failure
+            }
+        }
+
     }
 }

@@ -50,7 +50,6 @@ namespace MusicianDatabase.Service
             return instrument;
         }
 
-        // Couldn't implement to controller, Swagger gives API error? -- Fixed!
         public async Task<List<ArtistRoleDto>> GetInstrumentalists(int instrumentId)
         {
             var instrumentalists = await _context.RoleInstruments

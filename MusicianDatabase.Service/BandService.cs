@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using MusicianDatabase.Data;
 using MusicianDatabase.Data.Entities;
 using MusicianDatabase.Service.DTOs;
 using MusicianDatabase.Service.Extensions;
+using MusicianDatabase.Service.Helpers;
 using MusicianDatabase.Service.Interfaces;
 using Snickler.EFCore;
 
@@ -13,10 +16,14 @@ namespace MusicianDatabase.Service
     {
         private readonly MusicianDbContext _context;
         private readonly IMapper _mapper;
-        public BandService(MusicianDbContext context, IMapper mapper)
+        private readonly ILogger<BandService> _logger;
+        private readonly IMemoryCache _memoryCache;
+        public BandService(MusicianDbContext context, IMapper mapper, ILogger<BandService> logger, IMemoryCache memoryCache)
         {
             _context = context;
             _mapper = mapper;
+            _logger = logger;
+            _memoryCache = memoryCache;
         }
 
         public async Task<bool> AddMember(int artistId, int bandId, int instrumentId, string? roleDescription = null)
@@ -43,6 +50,12 @@ namespace MusicianDatabase.Service
             _context.RoleInstruments.Add(newRoleInstrument);
             int result2 = await _context.SaveChangesAsync();
             bool results = result1 > 0 && result2 > 0;
+
+            CacheHelper.RemoveByPattern(_memoryCache, "Band");
+            CacheHelper.RemoveByPattern(_memoryCache, "Role");
+
+
+
             return results;
         }
 
@@ -52,6 +65,8 @@ namespace MusicianDatabase.Service
             var band = _mapper.Map<Band>(bandDto);
             _context.Bands.Add(band);
             int result = await _context.SaveChangesAsync();
+
+            CacheHelper.RemoveByPattern(_memoryCache, "Band");
 
             return result > 0;
         }
@@ -67,35 +82,58 @@ namespace MusicianDatabase.Service
 
             int result = await _context.SaveChangesAsync();
 
+            CacheHelper.RemoveByPattern(_memoryCache, "Band");
+            CacheHelper.RemoveByPattern(_memoryCache, "Role");
+
+
             return result > 0;
         }
 
         public async Task<List<BandAvailableDto>> GetAvailable(string? genre, DateTime date)
         {
-            // önceki tarihlere istek atılmasını engellemek istersek burada yaparız.
+            var cacheKey = $"BandsAvailable_{genre}_{date}";
 
-            //var bands = await _context.Bands.Include(b => b.ConcertBands).ThenInclude(cb => cb.Concert)
-            //    .Where(b => b.Genre.Contains(genre) && !b.ConcertBands.Any(cb => cb.Concert.Date == date))
-            //    .Select(b => new BandAvailableDto
-            //    {
-            //        Id = b.Id,
-            //        Name = b.Name,
-            //        Genre = b.Genre,
-            //        Description = b.Description
-            //    })
-            //    .ToListAsync();
+            if (_memoryCache.TryGetValue(cacheKey, out List<BandAvailableDto> cachedAvailableBands))
+            {
+                _logger.LogInformation($"GetAvailable - Returning cached data for Genre = '{genre}' and Date = '{date}'");
+                return cachedAvailableBands;
+            }
+
             var bands = await _context.Bands.Include(b => b.ConcertBands).ThenInclude(cb => cb.Concert)
                 .Where(b =>
                 (!string.IsNullOrEmpty(genre) ? b.Genre.Contains(genre) : true) &&
                 !b.ConcertBands.Any(cb => cb.Concert.Date == date))
                 .ToListAsync();
+
             var availableBands = _mapper.Map<List<BandAvailableDto>>(bands); // Added reverse map at profile for this to work.
 
-            return availableBands;
+            if (availableBands.Count > 0)
+            {
+                // Add the available bands to cache with a specific cache duration
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+
+                _memoryCache.Set(cacheKey, availableBands, cacheEntryOptions);
+
+                return availableBands;
+            }
+
+            return null;
         }
+
 
         public async Task<List<BandConcertsDto>> GetBandConcertsBetweenDates(int bandId, DateTime startDate, DateTime endDate)
         {
+            var cacheKey = $"BandConcerts_{bandId}_{startDate}_{endDate}";
+
+            if (_memoryCache.TryGetValue(cacheKey, out List<BandConcertsDto> cachedBandConcerts))
+            {
+                _logger.LogInformation($"GetBandConcertsBetweenDates - Returning cached data for BandId = '{bandId}', StartDate = '{startDate}', EndDate = '{endDate}'");
+                return cachedBandConcerts;
+            }
+
             var result = new List<BandConcertsDto>();
 
             await Task.Run(() =>
@@ -110,26 +148,89 @@ namespace MusicianDatabase.Service
                     });
             });
 
-            return result;
+            if (result.Count > 0)
+            {
+                // Add the result to cache with a specific cache duration
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+
+                _memoryCache.Set(cacheKey, result, cacheEntryOptions);
+
+                return result;
+            }
+
+            return null;
         }
 
-        // TODO: Use DTOs
         public async Task<Band> GetById(int id)
         {
+            var cacheKey = $"Band_{id}";
+
+            if (_memoryCache.TryGetValue(cacheKey, out Band cachedBand))
+            {
+                _logger.LogInformation($"GetById (Band) - Returning cached data for Id = {id}");
+                return cachedBand;
+            }
+
             var band = await _context.Bands.SingleOrDefaultAsync(a => a.Id == id);
 
-            return band;
+            if (band != null)
+            {
+                // Add the band to cache with a specific cache duration
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+
+                _memoryCache.Set(cacheKey, band, cacheEntryOptions);
+
+                return band;
+            }
+
+            return null;
         }
 
         public async Task<List<Band>> GetList()
         {
+            var cacheKey = "Bands";
+
+            if (_memoryCache.TryGetValue(cacheKey, out List<Band> cachedBands))
+            {
+                _logger.LogInformation("GetList (Bands) - Returning cached data");
+                return cachedBands;
+            }
+
             var bands = await _context.Bands.ToListAsync();
 
-            return bands;
+            if (bands.Count > 0)
+            {
+                // Add the bands list to cache with a specific cache duration
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+
+                _memoryCache.Set(cacheKey, bands, cacheEntryOptions);
+
+                return bands;
+            }
+
+            return null;
         }
+
 
         public async Task<List<ArtistRoleDto>> GetMembers(int bandId)
         {
+            var cacheKey = $"BandMembers_{bandId}";
+
+            if (_memoryCache.TryGetValue(cacheKey, out List<ArtistRoleDto> cachedBandMembers))
+            {
+                _logger.LogInformation($"GetMembers - Returning cached data for BandId = '{bandId}'");
+                return cachedBandMembers;
+            }
+
             var bandMembers = await _context.Bands
                 .Where(b => b.Id == bandId)
                 .SelectMany(b => b.Roles.Select(r => new
@@ -155,20 +256,56 @@ namespace MusicianDatabase.Service
                 })
                 .ToListAsync();
 
-            return bandMembers;
+            if (bandMembers.Count > 0)
+            {
+                // Add the bandMembers to cache with a specific cache duration
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+
+                _memoryCache.Set(cacheKey, bandMembers, cacheEntryOptions);
+
+                return bandMembers;
+            }
+
+            return null;
         }
 
         public async Task<List<RoleInBandDto>> GetRoles(int bandId)
         {
+            var cacheKey = $"BandRoles_{bandId}";
+
+            if (_memoryCache.TryGetValue(cacheKey, out List<RoleInBandDto> cachedBandRoles))
+            {
+                _logger.LogInformation($"GetRoles - Returning cached data for BandId = '{bandId}'");
+                return cachedBandRoles;
+            }
+
             var roleInstruments = await _context.RoleInstruments
                 .Where(ri => ri.Role.Band.Id == bandId)
                 .Include(ri => ri.Instrument)
                 .Include(ri => ri.Role).ThenInclude(r => r.Artist)
-                .Include(ri => ri.Role).ThenInclude(r => r.Band).ToListAsync();
+                .Include(ri => ri.Role).ThenInclude(r => r.Band)
+                .ToListAsync();
             var roles = _mapper.Map<List<RoleInBandDto>>(roleInstruments);
 
-            return roles;
+            if (roles.Count > 0)
+            {
+                // Add the roles to cache with a specific cache duration
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+
+                _memoryCache.Set(cacheKey, roles, cacheEntryOptions);
+
+                return roles;
+            }
+
+            return null;
         }
+
 
         public async Task<bool> RemoveMember(int artistId, int bandId)
         {
@@ -182,22 +319,16 @@ namespace MusicianDatabase.Service
 
             foreach (var role in rolesToRemove)
             {
-                //foreach (var roleInstrument in role.RoleInstruments.ToList())
-                //{
-                //    //_context.RoleInstruments.Remove(roleInstrument);
-                //}
-
-                //_context.Roles.Remove(role);
                 _context.RoleInstruments.RemoveRange(role.RoleInstruments);
             }
             _context.Roles.RemoveRange(rolesToRemove);
 
             int result = await _context.SaveChangesAsync();
+            CacheHelper.RemoveByPattern(_memoryCache, "Band");
+            CacheHelper.RemoveByPattern(_memoryCache, "Role");
 
             return result > 0;
         }
-
-
 
         public async Task<bool> UpdateBand(int id, BandCUDto bandUpdateDto)
         {
@@ -213,10 +344,10 @@ namespace MusicianDatabase.Service
             _context.Entry(band).State = EntityState.Modified;
 
             int result = await _context.SaveChangesAsync();
+            CacheHelper.RemoveByPattern(_memoryCache, "Band");
 
             return result > 0;
         }
-
 
     }
 }

@@ -27,9 +27,9 @@ namespace MusicianDatabase.Service
             return result > 0;
         }
 
-        public async Task<bool> DeleteRoleInstrument(int concertId, int bandId)
+        public async Task<bool> DeleteRoleInstrument(int roleId)
         {
-            var roleInstrument = await _context.RoleInstruments.FindAsync(concertId, bandId);
+            var roleInstrument = await _context.RoleInstruments.FindAsync(roleId);
 
             if (roleInstrument == null)
                 return false;
@@ -41,9 +41,9 @@ namespace MusicianDatabase.Service
             return result > 0;
         }
 
-        public async Task<RoleInstruments> GetById(int concertId, int bandId)
+        public async Task<RoleInstruments> GetById(int roleId)
         {
-            var roleInstrument = await _context.RoleInstruments.SingleOrDefaultAsync(ri => ri.RoleId == concertId && ri.InstrumentId == bandId);
+            var roleInstrument = await _context.RoleInstruments.SingleOrDefaultAsync(ri => ri.RoleId == roleId);
 
             return roleInstrument;
         }
@@ -55,19 +55,32 @@ namespace MusicianDatabase.Service
             return roleInstruments;
         }
 
-        public async Task<bool> UpdateRoleInstrument(int concertId, int bandId, RoleInstrumentCUDto roleInstrumentCUDto)
+        public async Task<bool> UpdateRoleInstrument(int roleId, int instrumentId)
         {
-            var roleInstrument = await _context.RoleInstruments.SingleOrDefaultAsync(ri => ri.RoleId == concertId && ri.InstrumentId == bandId);
+            var roleInstrument = await _context.RoleInstruments.SingleOrDefaultAsync(ri => ri.RoleId == roleId);
 
             if (roleInstrument == null)
                 return false;
 
-            _mapper.Map(roleInstrumentCUDto, roleInstrument);
-            _context.Entry(roleInstrument).State = EntityState.Modified;
+            // Delete the existing entity with the old key values
+            _context.RoleInstruments.Remove(roleInstrument);
+
+            // Create a new entity with the updated key values
+            var newRoleInstrument = new RoleInstruments
+            {
+                // Set the new key values
+                RoleId = roleId,
+                InstrumentId = instrumentId,
+                // Map other properties from the DTO as needed
+            };
+
+            // Add the new entity to the context
+            _context.RoleInstruments.Add(newRoleInstrument);
 
             int result = await _context.SaveChangesAsync();
 
             return result > 0;
         }
+
     }
 }

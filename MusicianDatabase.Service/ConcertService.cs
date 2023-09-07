@@ -36,8 +36,7 @@ namespace MusicianDatabase.Service
             _context.Concerts.Add(concert);
             int result = await _context.SaveChangesAsync();
 
-            _memoryCache.Remove("ConcertsCache");
-            CacheHelper.RemoveByPattern(_memoryCache, "ConcertCounts");
+            CacheHelper.RemoveByPattern(_memoryCache, "Concert");
 
 
             return result > 0;
@@ -53,21 +52,44 @@ namespace MusicianDatabase.Service
             _context.Concerts.Remove(concert);
 
             int result = await _context.SaveChangesAsync();
-            _memoryCache.Remove("ConcertsCache");
-            CacheHelper.RemoveByPattern(_memoryCache, "ConcertCounts");
+
+            CacheHelper.RemoveByPattern(_memoryCache, "Concert");
 
             return result > 0;
         }
 
         public async Task<Concert> GetById(int id)
         {
+            var cacheKey = $"Concert_{id}";
+
+            if (_memoryCache.TryGetValue(cacheKey, out Concert cachedConcert))
+            {
+                _logger.LogInformation("GetById (concert) - Returning cached data for Id = {Id}", id);
+                return cachedConcert;
+            }
+
             var concert = await _context.Concerts.SingleOrDefaultAsync(a => a.Id == id);
 
-            return concert;
+            if (concert != null)
+            {
+                // Add the concert to cache with a specific cache duration
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+
+                _memoryCache.Set(cacheKey, concert, cacheEntryOptions);
+                _logger.LogInformation("GetById (concert) - Added data to cache for Id = {Id}", id);
+
+                return concert;
+            }
+
+            return null;
         }
 
         public async Task<List<ConcertCountDto>> GetConcertCountsBetweenDates(DateTime startDate, DateTime endDate)
         {
+            // cacheKey starts with Concerts (plural) for ease of removal from memory.
             var cacheKey = $"ConcertCounts_{startDate}_{endDate}";
 
             if (_memoryCache.TryGetValue(cacheKey, out List<ConcertCountDto> cachedData))
@@ -111,7 +133,13 @@ namespace MusicianDatabase.Service
         public async Task<List<Concert>> GetList()
         {
             var cacheKey = $"ConcertsCache";
-            var concerts = await _context.Concerts.ToListAsync();
+            if (_memoryCache.TryGetValue(cacheKey, out List<Concert> concerts))
+            {
+                _logger.LogInformation("Returning cached Concerts data");
+                return concerts;  
+            };
+
+            concerts = await _context.Concerts.ToListAsync();
 
             var cacheEntryOptions = new MemoryCacheEntryOptions
             {
@@ -128,21 +156,36 @@ namespace MusicianDatabase.Service
         {
             var concertNew = _mapper.Map<Concert>(concertQCDto);
 
-            concertNew.ConcertBands.Add(new ConcertBand
-            {
-                ConcertId = concertNew.Id,
-                BandId = concertQCDto.BandId,
-            });
+            // Ensure that ConcertBands is initialized as a collection
+            concertNew.ConcertBands = new List<ConcertBand>();
 
             _context.Concerts.Add(concertNew);
 
-            int result3 = await _context.SaveChangesAsync();
-            _memoryCache.Remove("ConcertsCache");
-            CacheHelper.RemoveByPattern(_memoryCache, "ConcertCounts");
+            int result = await _context.SaveChangesAsync();
 
+            if (result > 0)
+            {
+                // Now that the Concert entity is saved and has an Id, you can create ConcertBand
+                concertNew.ConcertBands.Add(new ConcertBand
+                {
+                    ConcertId = concertNew.Id,
+                    BandId = concertQCDto.BandId,
+                });
 
-            return result3 > 0;
+                // Save changes again to add the ConcertBand
+                int result2 = await _context.SaveChangesAsync();
+
+                if (result2 > 0)
+                {
+                    CacheHelper.RemoveByPattern(_memoryCache, "Concert"); // Will also remove ConcertBand caches, as intended.
+                    return true;
+                }
+            }
+
+            return false;
         }
+
+
 
         public async Task<bool> UpdateConcert(int id, ConcertCUDto concertUpdateDto)
         {
@@ -151,14 +194,25 @@ namespace MusicianDatabase.Service
             if (concert == null)
                 return false;
 
+            // Check if the provided VenueId exists in the Venues table
+            var existingVenue = await _context.Venues.SingleOrDefaultAsync(v => v.Id == concertUpdateDto.VenueId);
+
+            if (existingVenue == null)
+            {
+                // Handle the case where the VenueId doesn't exist
+                // You can return an error message or throw an exception
+                return false;
+            }
+
+            // Map and update the Concert entity
             _mapper.Map(concertUpdateDto, concert);
             _context.Entry(concert).State = EntityState.Modified;
 
             int result = await _context.SaveChangesAsync();
-            _memoryCache.Remove("ConcertsCache");
-            CacheHelper.RemoveByPattern(_memoryCache, "ConcertCounts");
+            CacheHelper.RemoveByPattern(_memoryCache, "Concert");
 
             return result > 0;
         }
+
     }
 }

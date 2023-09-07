@@ -10,7 +10,10 @@ namespace MusicianDatabase.Service.Interfaces
 {
     public interface IAuthService
     {
-        Task<User> AuthenticateUserAsync(string email, string password);
+        Task<User> AuthenticateUser(string email, string password);
+        Task<User> RegisterUser(string name, string surname, string email, string password);
+        Task<bool> UserAlreadyExists(string email);
+
         string GenerateJwtToken(User user);
     }
 

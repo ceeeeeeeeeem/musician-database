@@ -11,7 +11,7 @@ namespace MusicianDatabase.Service.Interfaces
         Task<List<Artist>> GetList();
         Task<Artist> GetById(int id);
         Task<List<ArtistRoleDto>> GetRolesById(int id);
-        //Task<List<ArtistRoleDto>> GetRolesOfArtistByInstrument(int id, int instrumentId);
+        Task<List<ArtistRoleDto>> GetRolesOfArtistByInstrument(int id, int instrumentId);
         Task<List<Artist>> GetArtistsWithoutBands();
 
     }

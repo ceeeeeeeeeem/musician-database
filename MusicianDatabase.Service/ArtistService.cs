@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using MusicianDatabase.Data;
 using MusicianDatabase.Data.Entities;
 using MusicianDatabase.Service.DTOs;
+using MusicianDatabase.Service.Helpers;
 using MusicianDatabase.Service.Interfaces;
+using System;
 
 namespace MusicianDatabase.Service
 {
@@ -11,26 +15,25 @@ namespace MusicianDatabase.Service
     {
         private readonly MusicianDbContext _context;
         private readonly IMapper _mapper;
-
-        public ArtistService(MusicianDbContext context, IMapper mapper)
+        private readonly ILogger<ArtistService> _logger;
+        private readonly IMemoryCache _memoryCache;
+        public ArtistService(MusicianDbContext context, IMapper mapper, ILogger<ArtistService> logger, IMemoryCache memoryCache)
         {
             _context = context;
             _mapper = mapper;
+            _logger = logger;
+            _memoryCache = memoryCache;
+
         }
 
         public async Task<bool> CreateArtist(ArtistCUDto artistDto)
         {
-            //var artist = new Artist
-            //{
-            //    FirstName = artistDto.FirstName,
-            //    LastName = artistDto.LastName,
-            //    Genre = artistDto.Genre,
-            //    Description = artistDto.Description
-            //};
             var artist = _mapper.Map<Artist>(artistDto);
 
             _context.Artists.Add(artist);
             int result = await _context.SaveChangesAsync();
+
+            CacheHelper.RemoveByPattern(_memoryCache, "Artist");
 
             return result > 0;
         }
@@ -46,17 +49,28 @@ namespace MusicianDatabase.Service
 
             int result = await _context.SaveChangesAsync();
 
+            CacheHelper.RemoveByPattern(_memoryCache, "Artist");
+
             return result > 0;
         }
 
+        // SQL SP
         public async Task<List<Artist>> GetArtistsWithoutBands()
         {
+            var cacheKey = $"ArtistsWithoutBands";
+            if(_memoryCache.TryGetValue(cacheKey, out List<Artist> cachedData))
+                return cachedData;
+
             var result = await _context.Artists.FromSqlRaw("GetArtistsWithoutBands").ToListAsync();
             return result;
         }
 
         public async Task<Artist> GetById(int id)
         {
+            var cacheKey = $"Artist_{id}";
+            if (_memoryCache.TryGetValue(cacheKey, out Artist cachedData))
+                return cachedData;
+
             var artist = await _context.Artists.SingleOrDefaultAsync(a => a.Id == id);
 
             return artist;
@@ -64,13 +78,32 @@ namespace MusicianDatabase.Service
 
         public async Task<List<Artist>> GetList()
         {
+            var cacheKey = $"Artists";
+            if (_memoryCache.TryGetValue(cacheKey, out List<Artist> cachedData))
+                return cachedData;
+
             var artists = await _context.Artists.ToListAsync();
+            var cacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) // Set an appropriate cache duration
+            };
+
+            _memoryCache.Set(cacheKey, artists, cacheEntryOptions);
+            _logger.LogInformation("Added CacheKey Artists");
 
             return artists;
         }
 
         public async Task<List<ArtistRoleDto>> GetRolesById(int id)
         {
+            var cacheKey = $"ArtistRoles_{id}";
+
+            if (_memoryCache.TryGetValue(cacheKey, out List<ArtistRoleDto> cachedRoles))
+            {
+                _logger.LogInformation("GetRolesById - Returning cached data for ArtistId = {ArtistId}", id);
+                return cachedRoles;
+            }
+
             var artistRoles = await _context.Artists
                 .Where(a => a.Id == id)
                 .SelectMany(a => a.Roles.Select(r => new ArtistRoleDto
@@ -99,15 +132,59 @@ namespace MusicianDatabase.Service
                 })
                 .ToList();
 
+            var cacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+
+            _memoryCache.Set(cacheKey, groupedArtistRoles, cacheEntryOptions);
+            _logger.LogInformation("GetRolesById - Added data to cache for ArtistId = {ArtistId}", id);
+
             return groupedArtistRoles;
         }
 
 
 
-        //public Task<List<ArtistRoleDto>> GetRolesOfArtistByInstrument(int id, int instrumentId)
-        //{
-        //    throw new NotImplementedException();
-        //}
+
+        public async Task<List<ArtistRoleDto>> GetRolesOfArtistByInstrument(int id, int instrumentId)
+        {
+            var cacheKey = $"ArtistRoles_Artist_{id}_Instrument_{instrumentId}";
+
+            if (_memoryCache.TryGetValue(cacheKey, out List<ArtistRoleDto> cachedRoles))
+            {
+                _logger.LogInformation("GetRolesOfArtistByInstrument - Returning cached data for ArtistId = {ArtistId} and InstrumentId = {InstrumentId}", id, instrumentId);
+                return cachedRoles;
+            }
+
+            var artistRoles = await _context.Artists
+                .Where(a => a.Id == id)
+                .SelectMany(a => a.Roles)
+                .Where(role => role.RoleInstruments.Any(ri => ri.InstrumentId == instrumentId))
+                .Select(role => new ArtistRoleDto
+                {
+                    ArtistId = role.ArtistId, // Use the parameter 'id' passed to the method
+                    FirstName = role.Artist.FirstName, // Assuming 'a' is the artist
+                    LastName = role.Artist.LastName,
+                    BandId = role.BandId, // Use 'role' for BandId
+                    BandName = role.Band.Name, // Assuming Band has a Name property
+                    BandGenre = role.Band.Genre, // Assuming Band has a Genre property
+                    Instrument = role.RoleInstruments.Single(ri => ri.InstrumentId == instrumentId).Instrument.Name // Get the instrument's name directly
+                })
+                .ToListAsync();
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+
+            _memoryCache.Set(cacheKey, artistRoles, cacheEntryOptions);
+            _logger.LogInformation("GetRolesOfArtistByInstrument - Added data to cache for ArtistId = {ArtistId} and InstrumentId = {InstrumentId}", id, instrumentId);
+
+            return artistRoles;
+        }
+
+
+
 
         public async Task<bool> UpdateArtist(int id, ArtistCUDto artistUpdateDto)
         {
@@ -116,17 +193,13 @@ namespace MusicianDatabase.Service
             if (artist == null)
                 return false;
 
-            //// Update properties from the DTO
-            //artist.FirstName = artistUpdateDto.FirstName;
-            //artist.LastName = artistUpdateDto.LastName;
-            //artist.Genre = artistUpdateDto.Genre;
-            //artist.Description = artistUpdateDto.Description;
-
             _mapper.Map(artistUpdateDto, artist);
 
             _context.Entry(artist).State = EntityState.Modified;
 
             int result = await _context.SaveChangesAsync();
+
+            CacheHelper.RemoveByPattern(_memoryCache, "Artist");
 
             return result > 0;
         }
