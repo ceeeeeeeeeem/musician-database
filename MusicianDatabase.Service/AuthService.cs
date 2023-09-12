@@ -34,15 +34,20 @@ namespace MusicianDatabase.Service
         {
             // Find the user in the database by their email
             var user = await _context.Users.SingleOrDefaultAsync(x => x.Email == email);
-
+            _logger.LogInformation("Auth block.");
             // Check if a user with the given email exists
             if (user == null)
+            {
                 _logger.LogInformation("User not found");
                 return null; // User not found
+            }
 
             // Verify the provided password by hashing it with the stored salt
             if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            {
+                _logger.LogInformation("Password doesn't match");
                 return null; // Password doesn't match
+            }
 
             // Authentication successful
             _logger.LogInformation("User authenticated.");
@@ -58,15 +63,17 @@ namespace MusicianDatabase.Service
                 for (int i = 0; i < computedHash.Length; i++)
                 {
                     if (computedHash[i] != storedHash[i])
+                    {
                         _logger.LogInformation("Password does not match.");
-
-                    return false; // Password doesn't match
+                        return false; // Password doesn't match
+                    }
                 }
             }
             _logger.LogInformation("Password verified.");
 
             return true; // Password matches
         }
+
 
 
         public string GenerateJwtToken(User user)

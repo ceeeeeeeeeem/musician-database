@@ -9,6 +9,6 @@ namespace MusicianDatabase.Service.Interfaces
         Task<bool> UpdateConcertBand(int concertId, int bandId, ConcertBandCUDto concertBandCUDto);
         Task<bool> DeleteConcertBand(int concertId, int bandId);
         Task<List<ConcertBand>> GetList();
-        Task<ConcertBand> GetById(int concertId, int bandId);
+        Task<ConcertBand> GetById(int concertId);
     }
 }

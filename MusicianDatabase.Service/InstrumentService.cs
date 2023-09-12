@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MusicianDatabase.Data;
 using MusicianDatabase.Data.Entities;
@@ -10,10 +11,12 @@ namespace MusicianDatabase.Service
     public class InstrumentService : IInstrumentService
     {
         private readonly MusicianDbContext _context;
+        private readonly ILogger<InstrumentService> _logger;
 
-        public InstrumentService(MusicianDbContext context)
+        public InstrumentService(MusicianDbContext context, ILogger<InstrumentService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<bool> CreateInstrument(InstrumentCUDto instrumentDto)

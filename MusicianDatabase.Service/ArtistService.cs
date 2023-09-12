@@ -57,24 +57,67 @@ namespace MusicianDatabase.Service
         // SQL SP
         public async Task<List<Artist>> GetArtistsWithoutBands()
         {
-            var cacheKey = $"ArtistsWithoutBands";
-            if(_memoryCache.TryGetValue(cacheKey, out List<Artist> cachedData))
-                return cachedData;
+            var cacheKey = "ArtistsWithoutBands";
 
+            // Attempt to get data from cache
+            if (_memoryCache.TryGetValue(cacheKey, out List<Artist> cachedData))
+            {
+                _logger.LogInformation("GetArtistsWithoutBands - Returning cached data");
+                return cachedData;
+            }
+
+            // Data is not in cache, fetch it from the database
             var result = await _context.Artists.FromSqlRaw("GetArtistsWithoutBands").ToListAsync();
-            return result;
+
+            if (result != null && result.Any())
+            {
+                // Add the result to cache with a specific cache duration
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) // Set an appropriate cache duration
+                };
+
+                // Store the fetched data in cache
+                _memoryCache.Set(cacheKey, result, cacheEntryOptions);
+
+                return result;
+            }
+
+            return null;
         }
+
 
         public async Task<Artist> GetById(int id)
         {
             var cacheKey = $"Artist_{id}";
-            if (_memoryCache.TryGetValue(cacheKey, out Artist cachedData))
-                return cachedData;
 
+            // Attempt to get data from cache
+            if (_memoryCache.TryGetValue(cacheKey, out Artist cachedData))
+            {
+                _logger.LogInformation("GetById (Artist) - Returning cached data for Id = {Id}", id);
+                return cachedData;
+            }
+
+            // Data is not in cache, fetch it from the database
             var artist = await _context.Artists.SingleOrDefaultAsync(a => a.Id == id);
 
-            return artist;
+            if (artist != null)
+            {
+                // Add the artist to cache with a specific cache duration
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) // Set an appropriate cache duration
+                };
+
+                // Store the fetched data in cache
+                _memoryCache.Set(cacheKey, artist, cacheEntryOptions);
+
+                return artist;
+            }
+
+            return null;
         }
+
 
         public async Task<List<Artist>> GetList()
         {

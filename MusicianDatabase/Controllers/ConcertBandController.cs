@@ -20,8 +20,8 @@ namespace MusicianDatabase.Controllers
         [HttpGet]
         public async Task<IActionResult> Get() => Ok(await _concertBandService.GetList());
 
-        [HttpGet("{concertId}/{bandId}")]
-        public async Task<IActionResult> Get(int concertId, int bandId) => Ok(await _concertBandService.GetById(concertId, bandId));
+        [HttpGet("{concertId}")]
+        public async Task<IActionResult> Get(int concertId) => Ok(await _concertBandService.GetById(concertId));
 
         [HttpPost]
         public async Task<IActionResult> Create(ConcertBandCUDto concertBandDto) => Ok(await _concertBandService.CreateConcertBand(concertBandDto));
